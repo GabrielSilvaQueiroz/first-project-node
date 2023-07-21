@@ -1,7 +1,10 @@
 const express = require('express')
 const uuid = require('uuid')
 const app = express()
+const cors = require('cors')
+
 app.use(express.json())
+app.use(cors())
 
 
 const users = []
@@ -27,13 +30,25 @@ app.get('/users', (request, response) => {
 })
 
 app.post('/users', (request, response) => {
-    const { name, age } = request.body
+    try {
 
-    const user = { id: uuid.v4(), name, age }
+        const { name, age } = request.body
 
-    users.push(user) //push sobe os elementos da variavel pra o vetor
+        if (age < 18) throw new Error("Only allowed users over 18 years old")
 
-    return response.status(201).json(user)
+        const user = { id: uuid.v4(), name, age }
+
+        users.push(user) //push sobe os elementos da variavel pra o vetor
+
+        return response.status(201).json(user)
+
+    } catch (err) {
+
+        return response.status(400).json({ error: err.message })
+
+    }
+
+
 })
 
 app.put('/users/:id', checkUserId, (request, response) => {
@@ -58,6 +73,6 @@ app.delete('/users/:id', checkUserId, (request, response) => {
 
 })
 
-app.listen(3000, () => {
-    console.log("🚀 Server started on port 3000")
+app.listen(3001, () => {
+    console.log("🚀 Server started on port 3001")
 })
